@@ -1,0 +1,23 @@
+import java.awt.*;
+
+/** 
+ * CS 1331 Summer 2012 - HW 8
+ * 
+ *
+ * @author: Cristina Chu
+ * @version: 1.0
+ * */
+
+public class FastTower extends Tower{
+  
+  public FastTower(Point pos){
+    super(-200,2,15,2.0,pos,60, Color.green);
+    
+    //cost=-150; damage=-2; health=15; speed=2.0; radius=60
+  }
+  
+  public void attack(Monster monster){
+    monster.takeHealth(-2);
+  }
+  
+}

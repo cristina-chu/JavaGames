@@ -1,0 +1,133 @@
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
+import java.util.*;
+
+public class ControlPanel extends JPanel{
+  
+  private JButton sendWave;
+  private JRadioButton basic, fast, strong;
+  private JLabel scoreLabel, moneyLabel, levelLabel;
+  private ButtonGroup towers;
+  private JPanel info, options;
+  private Random rand = new Random();
+  private Path path; 
+  private ArrayList<Monster> monsters;
+  private int score, money, level;
+  private boolean check;
+  
+  public ControlPanel(Path path){
+    this.path = path;
+    check = false;
+    score = 0;
+    money = 200;
+    
+    setPreferredSize(new Dimension(1000,50));
+    
+    moneyLabel = new JLabel("Money: 200");
+    scoreLabel = new JLabel("Score: 0");
+    levelLabel = new JLabel("Level: 0");
+    
+    basic = new JRadioButton("Basic Tower = $100");
+    fast = new JRadioButton("Fast Tower = $150");
+    strong = new JRadioButton("Strong Tower = $200");
+    
+    ButtonGroup towers = new ButtonGroup();
+    towers.add(basic);
+    towers.add(fast);
+    towers.add(strong);
+    
+    JButton sendWave = new JButton("Send Wave");
+    sendWave.addActionListener(new WaveListener());
+    
+    JPanel info = new JPanel();
+    info.add(levelLabel);
+    info.add(scoreLabel);
+    info.add(moneyLabel);
+    
+    //JPanel options = new JPanel();
+    
+    add(info);
+    add(basic);
+    add(fast);
+    add(strong);
+    //add(options);
+    add(sendWave);  
+  } 
+  
+  public int getOptionTower(){
+    if (basic.isSelected())
+      return 0;
+    else if (fast.isSelected())
+      return 1;
+    else if (strong.isSelected())
+      return 2;
+    else 
+      return 3;
+  }
+  
+  public int getMoney(){
+    return money;
+  }
+  
+  public void changeMoney(int change){
+    money = money+change;
+    moneyLabel.setText("Money: "+money);
+  }
+  
+  public ArrayList<Monster> getMonsters(){
+    return monsters;
+  }
+  
+  public boolean getCheck(){
+    return check;
+  }
+  
+  public void setCheck(boolean c){
+    check = c;
+  }
+  
+  public int getScore(){
+    return score;
+  }
+  
+  public void changeScore(int points){
+    score = score+points;
+    scoreLabel.setText("Score: "+score);
+  }
+  
+  public void levelUp(){
+    level++;
+    levelLabel.setText("Level: "+level);
+  }
+  
+  public void reset(){
+    score = 0;
+    money = 200;
+    level = 0;
+    
+    scoreLabel.setText("Score: 0");
+    moneyLabel.setText("Money: 200");
+    levelLabel.setText("Level: 0");
+    
+    monsters.clear();
+  }  
+  
+  private class WaveListener implements ActionListener{
+    public void actionPerformed(ActionEvent e){
+      monsters = new ArrayList<Monster>();
+      
+      for (int i=0; i<10; i++){
+        int x = rand.nextInt(3);
+        if (x == 0)
+          monsters.add(new Troll(path.getStart()));
+        else if (x == 1)
+          monsters.add(new Basilisk(path.getStart()));
+        else
+          monsters.add(new Dragon(path.getStart()));
+        }
+     levelUp(); 
+     check = true; 
+    }
+  }
+}

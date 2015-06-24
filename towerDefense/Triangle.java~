@@ -1,0 +1,36 @@
+public class Triangle implements Comparable{ 
+  
+  private int height, base;
+  private double area;
+  
+  public Triange(int height, int base){
+    this.height = height; 
+    this.base = base;
+    
+    area = .5*height*base;
+  }
+  
+  public int getHeight(){
+    return height;
+  }
+  
+  public int getBase(){
+    return base;
+  }
+  
+  public double getArea(){
+    return area;
+  }
+  
+  public int compareTo(Triangle t){
+    if (t.getArea() < area)
+      return 1;
+    else if (t.getArea() > area)
+      return -1;
+    else if (t.getArea() == area)
+      return 0;
+  }
+}
+      
+    
+    

@@ -1,0 +1,191 @@
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
+import java.util.*;
+
+public class GamePanel extends JPanel{
+  
+  private ControlPanel control;
+  private Path path;
+  private ArrayList<Tower> towers;
+  private JFrame frame;
+  private ArrayList<Monster> monsters, monsters2;
+  private javax.swing.Timer timer;
+  private Random rand = new Random();
+  private int notKilled, monsterCount;
+  private boolean applies;
+  
+  public GamePanel(ControlPanel control, JFrame frame, Path path){
+    this.control = control;
+    this.frame = frame;
+    this.path = path;
+    
+    setBackground(Color.cyan);
+    setPreferredSize(new Dimension(1000,600));
+    
+    towers = new ArrayList<Tower>();
+
+    addMouseListener(new TowerCreator());
+    
+    timer = new javax.swing.Timer(100, new TimerListener());
+    timer.start();
+    timer.setRepeats(true);
+  }
+  
+  public void paintComponent(Graphics g){
+    super.paintComponent(g);
+    
+    path.draw(g);
+    
+    try{
+      for (Tower t: towers)
+        t.draw(g);
+      
+      for (Monster m: monsters)
+        m.draw(g); }
+    catch (Exception x){}
+  }
+  
+  private void bonus(int notKilled){
+    if (notKilled == 0){
+      control.changeMoney(200);
+      JOptionPane.showMessageDialog(frame, "All enemies killed! +Bonus Pts!");
+    }
+  }
+  
+  private void removeMonster(){
+    for (Monster m: monsters){
+      if (m.getHealth() <= 0){
+        control.changeMoney(m.getMoneyPts());
+        control.changeScore(m.getScorePts());
+        monsters.remove(m);}
+      if (m.getPosition() == path.getEnd()){
+        for (Tower t: towers){
+          t.takeHealth();}
+        monsters.remove(m);
+        JOptionPane.showMessageDialog(frame, "An enemy has escaped! Your towers have weaken.")
+        notKilled++;}
+    }
+    
+  }
+  
+  private boolean lose(){
+    if (control.getScore() < 0)
+      return true;
+    else
+      return false;
+  }
+
+  private void resetGame(){
+    control.reset();
+    monsters.clear();
+    towers.clear();
+    notKilled = 0;
+  }
+  
+  private class TowerCreator extends MouseAdapter{
+    public void mousePressed(MouseEvent m){
+      Point p = new Point(m.getX(), m.getY());
+      switch(control.getOptionTower()){
+        
+        case 0: BasicTower b = new BasicTower(p);
+        if (control.getMoney() < -b.getCost())
+          JOptionPane.showMessageDialog(frame, "Not enough money.");
+        else {
+          towers.add(b);
+          control.changeMoney(b.getCost());
+          repaint();
+        }
+        break;
+        
+        case 1: FastTower f = new FastTower(p);
+        if (control.getMoney() < -f.getCost())
+          JOptionPane.showMessageDialog(frame, "Not enough money.");
+        else {
+          towers.add(f);
+          control.changeMoney(f.getCost());
+          repaint();
+        }
+        break;
+        
+        case 2:StrongTower s = new StrongTower(p);
+        if (control.getMoney() < -s.getCost())
+          JOptionPane.showMessageDialog(frame, "Not enough money.");
+        else {
+          towers.add(s);
+          control.changeMoney(s.getCost());
+          repaint();
+        }
+        break;
+        
+        case 3: JOptionPane.showMessageDialog(frame, "No choice made. Please select a tower to build.");
+        break;
+      }
+    }
+  } 
+  
+
+  private class TimerListener implements ActionListener{
+    public void actionPerformed(ActionEvent e){
+      if (control.getCheck()){
+        monsters = new ArrayList<Monster>();
+        monsters2 = control.getMonsters();
+        monsters.add(monsters2.get(0));
+        
+        System.out.println(monsters.get(0));
+        
+        System.out.println(control.getMonsters());
+        System.out.println(monsters2);
+        System.out.println(monsters);
+        
+        monsterCount = 1;
+        notKilled = 0;
+        applies = true;
+        control.setCheck(false);
+      }
+      
+      try {
+      //to randomnly place monsters on screen
+        if (rand.nextBoolean()==true && monsterCount<monsters2.size()){
+          monsters.add(monsters2.get(monsterCount));
+          monsterCount++;
+        }
+      
+      //move monsters depending on their speed
+        for (Monster m: monsters)
+          m.setPosition(path.nextPosition(m.getPosition(), m.getSpeed()));
+      
+        
+      //bonus points if no monster cross the end
+        if (monsters.size() == 0 && applies==true){
+          bonus(notKilled);
+          applies = false;
+        }
+      
+        for (Tower t: towers){
+          for (Monster m: monsters){
+            if (t.inRange(m.getPosition())){
+              t.attack(m);
+            }
+            //depending on speed of each tower, attack every ## seconds (use getSpeed())
+            
+          }
+        }       
+        
+        if(lose()){
+          int n = JOptionPane.showConfirmDialog(null, "You lost :(  Play again?", "New game", JOptionPane.YES_NO_OPTION);
+          if(n==JOptionPane.NO_OPTION)
+            System.exit(0);
+          else
+            resetGame();}
+        
+        //remove monsters that have zero health
+        removeMonster(); 
+      }
+      
+      catch (Exception x){}
+      
+      repaint();  
+    }
+  }
+}

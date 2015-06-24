@@ -1,0 +1,60 @@
+import java.awt.*;
+
+/** 
+ * CS 1331 Summer 2012 - HW 8
+ * 
+ *
+ * @author: Cristina Chu
+ * @version: 1.0
+ * */
+public abstract class Monster{
+  
+  public final int moneyPts, scorePts, speed;
+  public int health;
+  public Point position;
+  public Color color;
+  
+  
+  public Monster(int moneyPts, int health, int speed, Point position, Color color, int scorePts){
+    this.moneyPts = moneyPts;
+    this.health = health;
+    this.speed = speed;
+    this.position = position;
+    this.color = color;
+    this.scorePts = scorePts;
+  }
+  
+  public int getHealth(){
+    return health;
+  }
+  
+  public int getMoneyPts(){
+    return moneyPts;
+  }
+  
+  public int getSpeed(){
+    return speed;
+  }
+  
+  public Point getPosition(){
+    return position;
+  }
+  
+  public int getScorePts(){
+    return scorePts;
+  }
+  
+  public void setPosition(Point newPos){
+    position = newPos;
+  }
+  
+  public void takeHealth(int damage){
+    health = health+damage;
+  }
+  
+  public void draw(Graphics g){
+    g.setColor(color);
+    g.fillOval((int)position.getX()-3,(int)position.getY()-3, 6,6);
+  }
+
+}

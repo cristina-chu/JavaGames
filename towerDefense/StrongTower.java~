@@ -1,0 +1,23 @@
+import java.awt.*;
+
+/** 
+ * CS 1331 Summer 2012 - HW 8
+ * 
+ *
+ * @author: Cristina Chu
+ * @version: 1.0
+ * */
+
+public class StrongTower extends Tower{
+  
+  public StrongTower(Point pos){
+    super(-300,5,20,2.5,pos,80, Color.red);
+    
+    //cost=200; damage=5; health=20; speed=2.5; radius 100
+  }
+  
+  public void attack(Monster monster){
+    monster.takeHealth(-3);
+  }
+  
+}

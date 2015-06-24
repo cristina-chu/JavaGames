@@ -1,0 +1,224 @@
+import java.awt.*;
+import java.awt.geom.AffineTransform;
+import java.util.*;
+import javax.swing.*;
+
+/**
+ * Defines a ship object for the game of asteroids.
+ * 
+ * @author Elizabeth
+ * @version 2.0
+ */
+public class Ship {
+ public static final int MAX_SPEED = 10;
+ private double rotation, speed;
+ private Point pos;
+ private Rectangle field;
+ private Rectangle bounds; // the"bounding box" of the ship 
+ private final double dR = Math.PI / 10; //change in rotation every time rotate is called
+ private int kills;
+ private int lives;
+ private ImageIcon img = new ImageIcon("ship.png");
+ 
+ /**
+  * Constructs a new ship at the given point. The given field defines where the ship is allowed to move.
+  * 
+  * @param field The rectangle that defines the area that the ship is allowed to move in
+  * @param pos The point that defines the ship's position
+  */
+ public Ship(Rectangle field, Point pos) {
+   this.field = field;
+   this.pos = pos;
+   
+   //setting all the ship's characteristics to default (0) and lives to 3 for the new ship
+   rotation = 0;
+   speed = 0;
+   kills = 0;
+   lives = 3;
+   
+   //this will set up the bounding box to be slighly inside the ship's triangle
+   bounds = new Rectangle(new Point(pos.x-4, pos.y-4), new Dimension(8, 8)); 
+ }
+
+ /**
+  * Changes the speed of the ship by the amount taken in as a parameter. The parameter can be positive 
+  * or negative (positive speed indicates forward motion, negative speed indicates backward motion). The speed
+  * of the ship should never exceed MAX_SPEED in either the positive or negative direction
+  * 
+  * @param ds change in speed
+  */
+ public void changeSpeed(double ds) {
+   if (speed+ds <= MAX_SPEED && speed+ds>-MAX_SPEED)
+     speed = speed+ds; 
+   else if (speed+ds > MAX_SPEED)
+     speed = MAX_SPEED;
+   else if (speed+ds < -MAX_SPEED)
+     speed = -MAX_SPEED;
+ }
+ 
+ /**
+  * Rotates the ship to the right or to the left.
+  * 
+  * @param right boolean indicating if the ship rotates to the right (true if right, false if left)
+  */
+ public void rotate(boolean right) {
+   if (right == true)
+     rotation = rotation+dR;
+   else if (right == false)
+     rotation = rotation-dR;
+ }
+
+ /**
+  * Shoots a bullet - Does math stuff to put the bullet on the right trajectory
+  * 
+  * @return the bullet that was shot from the ship
+  */
+ public Bullet shoot() {
+  int x1 = (int) (8 * Math.cos(rotation) - (0) * Math.sin(rotation)) + pos.x;
+  int y1 = (int) (8 * Math.sin(rotation) + (0) * Math.cos(rotation)) + pos.y;
+
+  return new Bullet(field, new Point(x1,y1), rotation);
+ }
+
+ /**
+  * Determines whether the ship crashed into the given Asteroid
+  * 
+  * @param a the Asteroid
+  * @return true if a collision occurred, false otherwise
+  */
+ public boolean crash(Asteroid a) {
+   if (a.collide(bounds) == true)
+     return true;
+   else
+     return false;
+ }
+ 
+ /**
+  * Increases the "kill" count of the ship - ie, how many asteroids the ship has destroyed
+  * 
+  */
+ public void kill(){
+   kills++;
+ }
+ 
+ /**
+  * Gets the ship's kill count
+  * 
+  * @return kill count
+  */
+ public int getKills(){
+   return kills;
+ }
+ 
+ /**
+  * Called when the ship crashes into an asteroid. It loses a life, and its position and rotation should be reset
+  */
+ public void loseLife(){
+   lives--;
+   defaultPosition();
+ }
+ 
+ /**
+  * Moves the ship to a default position in the center of the playing field. Also resets the ship's rotation
+  */
+ private void defaultPosition(){
+   pos.setLocation(field.getWidth()/2,field.getHeight()/2);
+   rotation = 0;
+   speed = 0;  
+ }
+ 
+ /**
+  * Get the lives of the ship
+  * 
+  * @return number of lives left
+  */
+ public int getLives(){
+   return lives;
+ }
+ 
+ /**
+  * Moves the ship
+  */
+ public void move() {
+  //moves the ship based on the current speed and rotation
+  pos.translate((int) (Math.cos(rotation) * speed),(int) (speed * Math.sin(rotation)));
+
+  // makes the ship drift to a halt
+  if (speed > 0.09)
+   speed -= .2;
+  else if (speed < 0.09)
+   speed += .2;
+  else
+   speed = 0;
+
+  //makes the ship "wrap around" the playing field
+  switch (field.outcode(pos)) {
+  case (Rectangle.OUT_BOTTOM):
+   pos.translate(0, -field.height);
+   break;
+  case (Rectangle.OUT_TOP):
+   pos.translate(0, field.height);
+   break;
+  case (Rectangle.OUT_RIGHT):
+   pos.translate(-field.width, 0);
+   break;
+  case (Rectangle.OUT_LEFT):
+   pos.translate(field.width, 0);
+   break;
+  }
+  
+  //moves the bounding box so that it is always on top of the ship
+  bounds.setLocation(new Point(pos.x-4, pos.y-4));
+ }
+ 
+ /**
+  * Draws the ship
+  * 
+  * @param g
+  */
+ public void draw(Graphics g) {
+  g.drawPolygon(makeTriangle());
+  //g.drawRect(bounds.x, bounds.y, bounds.width, bounds.height);
+  int x1 = (int) ((10) * Math.cos(rotation) - (0) * Math.sin(rotation))
+    + pos.x;
+  int y1 = (int) ((10) * Math.sin(rotation) + (0) * Math.cos(rotation))
+    + pos.y;
+  int x2 = (int) ((6) * Math.cos(rotation) - (0) * Math.sin(rotation))
+    + pos.x;
+  int y2 = (int) ((6) * Math.sin(rotation) + (0) * Math.cos(rotation))
+    + pos.y;
+
+  g.setColor(Color.red);
+  g.drawLine(x1, y1, x2, y2);
+  g.setColor(Color.black); 
+ }
+ 
+ /**
+  * Does some math stuff to make a triangle for the ship
+  * 
+  * @return a triangle that will be drawn on screen
+  */
+ private Polygon makeTriangle() {
+  int x1 = (int) ((8) * Math.cos(rotation) - (0) * Math.sin(rotation))
+    + pos.x;
+  int y1 = (int) ((8) * Math.sin(rotation) + (0) * Math.cos(rotation))
+    + pos.y;
+
+  int x2 = (int) ((-4) * Math.cos(rotation) - (-7) * Math.sin(rotation))
+    + pos.x;
+  int y2 = (int) ((-4) * Math.sin(rotation) + (-7) * Math.cos(rotation))
+    + pos.y;
+
+  int x3 = (int) ((-4) * Math.cos(rotation) - 7 * Math.sin(rotation)) + pos.x;
+  int y3 = (int) ((-4) * Math.sin(rotation) + 7 * Math.cos(rotation)) + pos.y;
+
+  // int xRot = (int)(x*Math.cos(rotation) - y*Math.sin(rotation));
+  // int yRot = (int)(x*Math.sin(rotation) + y*Math.cos(rotation));
+
+  Polygon p = new Polygon(new int[] { x1, x2, x3 }, new int[] { y1, y2,
+    y3 }, 3);
+
+  return p;
+ }
+
+}

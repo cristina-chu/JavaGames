@@ -1,0 +1,22 @@
+import java.awt.*;
+
+/** 
+ * CS 1331 Summer 2012 - HW 8
+ *
+ * @author: Cristina Chu
+ * @version: 1.0
+ * */
+
+public class BasicTower extends Tower{
+  
+  public BasicTower(Point pos){
+    super(-100,1,15,1.0,pos,40, Color.black);
+    
+    //cost=100; damage=1; health=15; speed=1.0; radius=100
+  }
+                         
+  public void attack(Monster monster){
+    monster.takeHealth(-1);
+  }
+  
+}

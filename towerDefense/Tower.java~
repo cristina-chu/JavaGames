@@ -1,0 +1,61 @@
+import java.awt.*;
+
+/** 
+ * CS 1331 Summer 2012 - HW 8
+ * 
+ *
+ * @author: Cristina Chu
+ * @version: 1.0
+ * */
+
+public abstract class Tower{
+  
+  private final int cost, damage, radius;
+  private int health;
+  private final double speed;
+  private final Point position;
+  private Color color;
+  
+  public Tower(int cost, int damage, int health, double speed, Point position, int radius, Color color){
+    this.cost = cost;
+    this.damage = damage;
+    this.health = health;
+    this.speed = speed;
+    this.position = position;
+    this.radius = radius;
+  }
+  
+  public int getHealth(){
+    return health;
+  }
+  
+  public int getCost(){
+    return cost;
+  }
+  
+  public int getRadius(){
+    return radius;
+  }
+  
+  public void draw(Graphics g){
+    g.setColor(color);
+    g.fillRect((int)position.getX()-6,(int)position.getY()-6,12,12);
+    
+    g.setColor(new Color(192,192,192,80));
+    g.fillOval((int)position.getX()-radius, (int)position.getY()-radius, (radius*2), (radius*2));
+  }
+  
+  public boolean inRange(Point monster){
+    if (Point.distance(position.getX(), position.getY(),monster.getX(), monster.getY()) <= radius)
+      return true;
+    else 
+      return false;
+  }
+  
+  public void takeHealth(){
+    health = health - 2;
+  }
+  
+  public abstract void attack(Monster monster);
+  
+}

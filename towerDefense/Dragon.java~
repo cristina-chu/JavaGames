@@ -1,0 +1,17 @@
+import java.awt.*;
+
+/** 
+ * CS 1331 Summer 2012 - HW 8
+ * 
+ *
+ * @author: Cristina Chu
+ * @version: 1.0
+ * */
+public class Dragon extends Monster{
+  
+  public Dragon(Point start){
+    super(80,30,3, start, new Color(227,0,159), 300);
+    
+    //moneyPts=80; health=20; speed=3
+  }
+}
